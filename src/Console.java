@@ -18,8 +18,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 import javax.swing.WindowConstants;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 /**
@@ -31,18 +34,51 @@ public class Console {
 
 	private JFrame frame;
 	private final JTextPane outputText = new JTextPane();
+	private final JMenuItem save = new JMenuItem("Save as text file");
+	private final JMenuItem clear = new JMenuItem("Clear console");
+	private final JMenuItem close = new JMenuItem("Close");
 	private StyledDocument doc = outputText.getStyledDocument();
+	private SimpleAttributeSet keyWord = new SimpleAttributeSet();
 	private SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("HH:mm");
+	private Date currentTime;
 
 	public Console() {
 		initialize();
 	}
 
+	@SuppressWarnings("serial")
 	public void initialize() {
 
-		outputText.setEditable(false);
-		final JMenuItem save = new JMenuItem("Save as text file");
+		final JMenuBar menuBar = new JMenuBar() {
+			{
+				add(new JMenu("File") {
+					{
+						add(save);
+						add(clear);
+						addSeparator();
+						add(close);
+					}
+				});
+			}
+		};
 
+		frame = new JFrame("Console") {
+			{
+				getContentPane().setLayout(
+						new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
+				setJMenuBar(menuBar);
+
+				add(new ScrollPane() {
+					{
+						add(outputText);
+						outputText.setEditable(false);
+					}
+				});
+
+			}
+		};
+
+		// ActionListener added to save file.
 		save.addActionListener(new ActionListener() {
 
 			@Override
@@ -51,34 +87,34 @@ public class Console {
 			}
 		});
 
-		final JMenuBar menuBar = new JMenuBar() {
-			{
-				add(new JMenu("File") {
-					{
-						add(save);
-					}
-				});
+		// Action listener to clear console
+		clear.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					doc.remove(0, doc.getLength());
+					log("Console Cleared...");
+					log("New Console Started...");
+
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
 			}
-		};
+		});
 
-		frame = new JFrame("Output") {
-			{
-				getContentPane().setLayout(
-						new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
+		// Action listener for optional file-close instead of clicking x.
+		close.addActionListener(new ActionListener() {
 
-				setJMenuBar(menuBar);
-
-				add(new ScrollPane() {
-					{
-						add(outputText);
-					}
-				});
-
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				frame.dispose();
 			}
-		};
+		});
 
 		// SET IT RELATIVE TO THE MAIN APPLICATION.
 		frame.setBounds(200, 200, 600, 200);
+
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 
@@ -91,9 +127,7 @@ public class Console {
 	 * @param message
 	 */
 	public void log(String message) {
-
-		Date currentTime = new Date(System.currentTimeMillis());
-
+		currentTime = new Date(System.currentTimeMillis());
 		try {
 			doc.insertString(doc.getLength(),
 					"  [" + simpleDateFormatter.format(currentTime) + "]: "
@@ -110,16 +144,13 @@ public class Console {
 	 * @param message
 	 */
 	public void logError(String message) {
-		SimpleAttributeSet keyWord = new SimpleAttributeSet();
 		StyleConstants.setForeground(keyWord, Color.RED);
-		StyleConstants.setBold(keyWord, true);
-
-		Date currentTime = new Date(System.currentTimeMillis());
+		currentTime = new Date(System.currentTimeMillis());
 
 		try {
 			doc.insertString(doc.getLength(),
-					"  [" + simpleDateFormatter.format(currentTime) + " ERROR]: "
-							+ message + "\n", keyWord);
+					"  [" + simpleDateFormatter.format(currentTime)
+							+ "] [ERROR]: " + message + "\n", keyWord);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
@@ -130,11 +161,11 @@ public class Console {
 	public static void main(String[] args) {
 		Console console = new Console();
 
-		for(int i = 0; i <40; i++){
-			if(i%2 == 0)
-				console.log(""+i);
-			else 
-				console.logError(""+i);
+		for (int i = 0; i < 1000; i++) {
+			if (i % 2 == 0)
+				console.log("" + i);
+			else
+				console.logError("" + i);
 		}
 	}
 
@@ -156,7 +187,7 @@ public class Console {
 					writer.close();
 
 				} catch (IOException ex) {
-
+					ex.printStackTrace();
 				}
 
 			}
@@ -165,6 +196,8 @@ public class Console {
 
 				int confirm = JOptionPane.showConfirmDialog(null,
 						"File exists do you want to save anyway?");
+
+				// If confirm YES.
 				if (confirm == 0) {
 
 					try {
@@ -174,16 +207,20 @@ public class Console {
 						writer.close();
 
 					} catch (IOException ex) {
+						ex.printStackTrace();
 
 					}
 
 				}
 
+				// If confirm NO
 				else if (confirm == 1) {
-
 					JOptionPane.showMessageDialog(null,
 							"The file was not saved.");
 
+					// If confirm CANCEL
+				} else {
+					saveFile.setVisible(false);
 				}
 
 			}
@@ -191,7 +228,6 @@ public class Console {
 		}
 
 		if (option == JFileChooser.CANCEL_OPTION) {
-
 			saveFile.setVisible(false);
 
 		}
