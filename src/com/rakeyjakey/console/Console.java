@@ -1,7 +1,9 @@
 package com.rakeyjakey.console;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -11,16 +13,24 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -45,6 +55,7 @@ public class Console {
 	private final JMenuItem clear = new JMenuItem("Clear console");
 	private final JMenuItem terminate = new JMenuItem(
 			"Terminate Main Application");
+	private final JMenuItem about = new JMenuItem("About this program");
 	private final JMenuItem close = new JMenuItem("Close console");
 	private JScrollBar scrollBar;
 
@@ -53,13 +64,58 @@ public class Console {
 	private final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat(
 			"HH:mm");
 	private Date currentTime;
-	private boolean visible = false;
+	private Color errorColor = Color.RED, normalColor = Color.BLACK;
 
 	/**
-	 * The constructor calls the method to initialize the Swing components.
+	 * This constructor simply calls the method to initialize the Swing
+	 * components.
 	 */
 	public Console() {
 		initialize();
+		setVisible(true);
+	}
+
+	/**
+	 * This constructor calls the method to initialize the Swing components and
+	 * sets the LookAndFeel given as the argument laf.
+	 * 
+	 * @param laf
+	 *            The desired LookAndFeel class.
+	 */
+	public Console(LookAndFeel laf) {
+		initialize();
+
+		try {
+			UIManager.setLookAndFeel(laf);
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
+		setVisible(true);
+	}
+
+	/**
+	 * This constructor calls the method to initialize the Swing components and
+	 * sets the LookAndFeel given as the argument laf.
+	 * 
+	 * @param laf
+	 *            The desired LookAndFeel name as a String.
+	 */
+	public Console(String laf) {
+		initialize();
+
+		try {
+			UIManager.setLookAndFeel(laf);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
 		setVisible(true);
 	}
 
@@ -77,10 +133,21 @@ public class Console {
 				add(new JMenu("File") {
 					{
 						add(save);
-						add(clear);
 						addSeparator();
-						add(close);
 						add(terminate);
+					}
+				});
+
+				add(new JMenu("Console") {
+					{
+						add(clear);
+						add(close);
+					}
+				});
+
+				add(new JMenu("About") {
+					{
+						add(about);
 					}
 				});
 			}
@@ -135,13 +202,13 @@ public class Console {
 		});
 
 		/*
-		 * Action listener for optional file-close instead of clicking x.
+		 * Action listener for optional console-close instead of clicking x.
 		 */
 		close.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				frame.dispose();
+				close();
 			}
 		});
 
@@ -154,6 +221,56 @@ public class Console {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				System.exit(0);
+			}
+		});
+
+		about.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				new JFrame("About this Program") {
+					{
+						getContentPane().add(new JPanel() {
+							{
+								setBorder(BorderFactory.createEmptyBorder(10,
+										10, 10, 10));
+								setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+								add(Box.createRigidArea(new Dimension(0, 10)));
+								add(new JLabel(
+										"This program is an open source program"));
+								add(new JLabel(
+										"created by Jake Arnold (RakeyJakey)."));
+
+								add(Box.createRigidArea(new Dimension(0, 20)));
+								add(new JLabel(
+										"Find the source at https://github.com/RakeyJakey"));
+							}
+						}, BorderLayout.NORTH);
+
+						getContentPane().add(new JPanel() {
+							{
+								add(new JButton("OK") {
+									{
+										addActionListener(new ActionListener() {
+											@Override
+											public void actionPerformed(
+													ActionEvent arg0) {
+												dispose();
+											}
+										});
+										setAlignmentX(Component.RIGHT_ALIGNMENT);
+									}
+								});
+							}
+						}, BorderLayout.SOUTH);
+						setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+						setSize(305, 160);
+						setResizable(false);
+						setLocationRelativeTo(Console.this.frame);
+						setVisible(true);
+					}
+				};
+				;
 			}
 		});
 
@@ -180,31 +297,23 @@ public class Console {
 
 	/**
 	 * Closes the console and disposes the frame.
-	 * 
-	 * @return true if successfully closed.
 	 */
-	public boolean close() {
+	public void close() {
 		frame.dispose();
 
-		return !frame.isValid();
 	}
 
 	/**
 	 * Clears the console.
-	 * 
-	 * @return true if console successfully cleared.
 	 */
-	public boolean clear() {
-
+	public void clear() {
 		try {
 			doc.remove(0, doc.getLength());
 			log("Console Cleared...");
 			log("New Console Started...");
-			return true;
 
 		} catch (BadLocationException e) {
 			e.printStackTrace();
-			return false;
 		}
 	}
 
@@ -287,6 +396,7 @@ public class Console {
 	 * @return true if message successfully logged.
 	 */
 	public boolean log(String message) {
+		StyleConstants.setForeground(keyWord, normalColor);
 		currentTime = new Date(System.currentTimeMillis());
 		try {
 			doc.insertString(doc.getLength(),
@@ -311,7 +421,7 @@ public class Console {
 	 * @return true if error message successfully logged.
 	 */
 	public boolean logError(String message) {
-		StyleConstants.setForeground(keyWord, Color.RED);
+		StyleConstants.setForeground(keyWord, errorColor);
 		currentTime = new Date(System.currentTimeMillis());
 
 		try {
@@ -339,7 +449,6 @@ public class Console {
 	 *            true = visible.
 	 */
 	public void setVisible(boolean visible) {
-		this.visible = visible;
 		frame.setVisible(visible);
 	}
 
@@ -349,26 +458,66 @@ public class Console {
 	 * @return true if the console is visible.
 	 */
 	public boolean isVisible() {
-		return visible;
+		return frame.isVisible();
 	}
 
 	/**
+	 * Sets whether the console will always be on top.
 	 * 
 	 * @param alwaysOnTop
 	 *            true = always on top.
-	 * @return true if successfully set to always on top.
 	 */
-	public boolean setAlwaysOnTop(boolean alwaysOnTop) {
+	public void setAlwaysOnTop(boolean alwaysOnTop) {
 		frame.setAlwaysOnTop(alwaysOnTop);
-		return frame.isAlwaysOnTop() == alwaysOnTop;
 	}
 
 	/**
+	 * Checks if the console is set to always be on top.
 	 * 
 	 * @return true if frame is always on top.
 	 */
 	public boolean isAlwaysOnTop() {
 		return frame.isAlwaysOnTop();
 	}
-	
+
+	/**
+	 * Sets the title of the frame.
+	 * 
+	 * @param title
+	 *            the title to be set.
+	 */
+	public void setTitle(String title) {
+		frame.setTitle(title);
+	}
+
+	/**
+	 * Returns the title of the console as a String.
+	 * 
+	 * @return the title of the console.
+	 */
+	public String getTitle() {
+		return frame.getTitle();
+	}
+
+	/**
+	 * Sets the normal text color to the color specified.
+	 * 
+	 * @param color
+	 *            the color to change to.
+	 */
+	public void setTextColor(Color color) {
+		normalColor = color;
+	}
+
+	/**
+	 * Sets the error text color to the color specified.
+	 * 
+	 * @param color
+	 *            the color to change to.
+	 * 
+	 */
+	public void setErrorTextColor(Color color) {
+		errorColor = color;
+	}
+
 }
