@@ -10,6 +10,8 @@ It has the capability to save your logs to a text file if you wish to do so.
 
 It was designed with it being an add on to a main application in mind.
 
+As of now it is not thread safe but I may update this if it becomes a problem.
+
 
 Instructions for use:
 
