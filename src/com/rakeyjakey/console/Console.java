@@ -1,5 +1,7 @@
 package com.rakeyjakey.console;
+
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -8,7 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
@@ -52,9 +53,14 @@ public class Console {
 	private final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat(
 			"HH:mm");
 	private Date currentTime;
+	private boolean visible = false;
 
+	/**
+	 * The constructor calls the method to initialize the Swing components.
+	 */
 	public Console() {
 		initialize();
+		setVisible(true);
 	}
 
 	/**
@@ -124,14 +130,7 @@ public class Console {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				try {
-					doc.remove(0, doc.getLength());
-					log("Console Cleared...");
-					log("New Console Started...");
-
-				} catch (BadLocationException e) {
-					e.printStackTrace();
-				}
+				clear();
 			}
 		});
 
@@ -171,7 +170,6 @@ public class Console {
 		 * console is closed.
 		 */
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		frame.setVisible(true);
 
 		/*
 		 * This logs that the console is started.
@@ -181,51 +179,41 @@ public class Console {
 	}
 
 	/**
-	 * Logs the given message in the console window.
+	 * Closes the console and disposes the frame.
 	 * 
-	 * @param message
-	 *            the message to be logged.
+	 * @return true if successfully closed.
 	 */
-	public void log(String message) {
-		currentTime = new Date(System.currentTimeMillis());
-		try {
-			doc.insertString(doc.getLength(),
-					"  [" + simpleDateFormatter.format(currentTime) + "]: "
-							+ message + "\n", null);
-			scrollBar.setValue(scrollBar.getMaximum());
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public boolean close() {
+		frame.dispose();
 
+		return !frame.isValid();
 	}
 
 	/**
-	 * Logs the given message in the console window in bold red.
+	 * Clears the console.
 	 * 
-	 * @param message
-	 *            the error message to be logged.
+	 * @return true if console successfully cleared.
 	 */
-	public void logError(String message) {
-		StyleConstants.setForeground(keyWord, Color.RED);
-		currentTime = new Date(System.currentTimeMillis());
+	public boolean clear() {
 
 		try {
-			doc.insertString(doc.getLength(),
-					"  [" + simpleDateFormatter.format(currentTime)
-							+ "] [ERROR]: " + message + "\n", keyWord);
-			scrollBar.setValue(scrollBar.getMaximum());
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+			doc.remove(0, doc.getLength());
+			log("Console Cleared...");
+			log("New Console Started...");
+			return true;
 
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
 	 * This saves the content of the console as a text file to the desired
-	 * location when "File - Save as text file" is chosen.
+	 * location.
 	 */
 
-	private void save() {
+	public void save() {
 		String text = outputText.getText();
 		JFileChooser saveFile = new JFileChooser();
 		int option = saveFile.showSaveDialog(null);
@@ -290,4 +278,97 @@ public class Console {
 
 	}
 
+	/**
+	 * Logs the given message in the console window.
+	 * 
+	 * @param message
+	 *            the message to be logged.
+	 * 
+	 * @return true if message successfully logged.
+	 */
+	public boolean log(String message) {
+		currentTime = new Date(System.currentTimeMillis());
+		try {
+			doc.insertString(doc.getLength(),
+					"  [" + simpleDateFormatter.format(currentTime) + "]: "
+							+ message + "\n", null);
+			scrollBar.setValue(scrollBar.getMaximum());
+			System.out.println("  [" + simpleDateFormatter.format(currentTime)
+					+ "]: " + message);
+			return true;
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+	}
+
+	/**
+	 * Logs the given message in the console window in red.
+	 * 
+	 * @param message
+	 *            the error message to be logged.
+	 * 
+	 * @return true if error message successfully logged.
+	 */
+	public boolean logError(String message) {
+		StyleConstants.setForeground(keyWord, Color.RED);
+		currentTime = new Date(System.currentTimeMillis());
+
+		try {
+			doc.insertString(doc.getLength(),
+					"  [" + simpleDateFormatter.format(currentTime)
+							+ "] [ERROR]: " + message + "\n", keyWord);
+
+			scrollBar.setValue(scrollBar.getMaximum());
+
+			System.out.println("  [" + simpleDateFormatter.format(currentTime)
+					+ "] [ERROR]: " + message);
+			return true;
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+
+	}
+
+	/**
+	 * Sets the visibilty of the console to either true or false.
+	 * 
+	 * @param visible
+	 *            true = visible.
+	 */
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+		frame.setVisible(visible);
+	}
+
+	/**
+	 * Checks if the console is visible.
+	 * 
+	 * @return true if the console is visible.
+	 */
+	public boolean isVisible() {
+		return visible;
+	}
+
+	/**
+	 * 
+	 * @param alwaysOnTop
+	 *            true = always on top.
+	 * @return true if successfully set to always on top.
+	 */
+	public boolean setAlwaysOnTop(boolean alwaysOnTop) {
+		frame.setAlwaysOnTop(alwaysOnTop);
+		return frame.isAlwaysOnTop() == alwaysOnTop;
+	}
+
+	/**
+	 * 
+	 * @return true if frame is always on top.
+	 */
+	public boolean isAlwaysOnTop() {
+		return frame.isAlwaysOnTop();
+	}
+	
 }
