@@ -15,6 +15,8 @@ Instructions for use:
 
 1. Create an instance of the Console class. Eg. Console console = new Console();
 2. Use console.log(String message) or console.logError(String message) to log messages.
+3. See the Documentation at http://rakeyjakey.com/java/console/docs in order to view the official documentation.
 
+As always with my programs, this is open source and free to use by everyone. 
 
-As always with my programs, this is open source and free to use by everyone. Please give credit where due, though.
+Please give credit to me where due.
