@@ -1,3 +1,4 @@
+package com.rakeyjakey.console;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -183,6 +184,7 @@ public class Console {
 	 * Logs the given message in the console window.
 	 * 
 	 * @param message
+	 *            the message to be logged.
 	 */
 	public void log(String message) {
 		currentTime = new Date(System.currentTimeMillis());
@@ -201,6 +203,7 @@ public class Console {
 	 * Logs the given message in the console window in bold red.
 	 * 
 	 * @param message
+	 *            the error message to be logged.
 	 */
 	public void logError(String message) {
 		StyleConstants.setForeground(keyWord, Color.RED);
@@ -287,30 +290,4 @@ public class Console {
 
 	}
 
-	/*
-	 * Main for testing.
-	 */
-	public static void main(String[] args) {
-
-		final Console console = new Console();
-		final Random random = new Random();
-
-		Runnable worker = new Runnable() {
-
-			@Override
-			public void run() {
-				for (int i = 1; i < 500; i++) {
-					console.log("" + i);
-
-					try {
-						Thread.sleep(random.nextInt(200));
-					} catch (InterruptedException e) {
-					}
-				}
-			}
-
-		};
-
-		worker.run();
-	}
 }
