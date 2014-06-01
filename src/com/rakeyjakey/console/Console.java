@@ -39,8 +39,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import com.alee.laf.WebLookAndFeel;
-
 /**
  * This class creates a JFrame in Java Swing with the capabilities to log
  * messages and errors in it when instantiated.
@@ -300,6 +298,8 @@ public class Console {
 							file.getAbsolutePath() + ".txt"));
 					writer.write(text);
 					writer.close();
+					logInfo("File saved as : " + file.getAbsolutePath()
+							+ ".txt");
 
 				} catch (IOException ex) {
 					ex.printStackTrace();
@@ -317,9 +317,10 @@ public class Console {
 
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(file.getAbsolutePath() + ".txt"));
+								new FileWriter(file.getAbsolutePath()));
 						writer.write(text);
 						writer.close();
+						logInfo("File saved as : " + file.getAbsolutePath());
 
 					} catch (IOException ex) {
 						ex.printStackTrace();
@@ -376,7 +377,7 @@ public class Console {
 	}
 
 	/**
-	 * Logs the given message in the console window as an info essage..
+	 * Logs the given message in the console window as an info message.
 	 * 
 	 * @param message
 	 *            the info message to be logged.
@@ -403,37 +404,6 @@ public class Console {
 			System.out.println(e);
 			return false;
 		}
-	}
-
-	/**
-	 * Logs the given message in the console window in red.
-	 * 
-	 * @param message
-	 *            the error message to be logged.
-	 * 
-	 * @return true if error message successfully logged.
-	 */
-	public boolean logError(String message) {
-		StyleConstants.setForeground(keyWord, errorColor);
-
-		currentTime = new Date(System.currentTimeMillis());
-
-		try {
-			doc.insertString(doc.getLength(),
-					"  [" + simpleDateFormatter.format(currentTime)
-							+ "] [ERROR]: " + message + "\n", keyWord);
-
-			scrollBar.setValue(scrollBar.getMaximum());
-
-			System.out.println("  [" + simpleDateFormatter.format(currentTime)
-					+ "] [ERROR]: " + message);
-			return true;
-
-		} catch (Exception e) {
-			System.out.println(e);
-			return false;
-		}
-
 	}
 
 	/**
@@ -469,22 +439,15 @@ public class Console {
 	}
 
 	/**
-	 * Logs the given message in the console window in red.
+	 * Logs the given message in the console window as an error.
 	 * 
 	 * @param message
 	 *            the error message to be logged.
 	 * 
 	 * @return true if error message successfully logged.
-	 * 
 	 */
-	public boolean logError(String message, int severity) {
-
-		if (severity == 0)
-			StyleConstants.setForeground(keyWord, Color.YELLOW);
-		if (severity == 1)
-			StyleConstants.setForeground(keyWord, Color.ORANGE);
-		if (severity > 1)
-			StyleConstants.setForeground(keyWord, Color.RED);
+	public boolean logError(String message) {
+		StyleConstants.setForeground(keyWord, errorColor);
 
 		currentTime = new Date(System.currentTimeMillis());
 
@@ -575,6 +538,7 @@ public class Console {
 	 */
 	public void setTextColor(Color color) {
 		normalColor = color;
+		logInfo("Normal text color set to: " + color.toString());
 	}
 
 	/**
@@ -586,6 +550,7 @@ public class Console {
 	 */
 	public void setErrorTextColor(Color color) {
 		errorColor = color;
+		logInfo("Error text color set to: " + color.toString());
 	}
 
 	/**
@@ -597,6 +562,7 @@ public class Console {
 	 */
 	public void setWarningTextColor(Color color) {
 		warningColor = color;
+		logInfo("Warning text color set to: " + color.toString());
 	}
 
 	/**
@@ -608,6 +574,7 @@ public class Console {
 	 */
 	public void setInfoTextColor(Color color) {
 		infoColor = color;
+		logInfo("Info text color set to: " + color.toString());
 	}
 
 	/**
@@ -622,6 +589,7 @@ public class Console {
 			UIManager.setLookAndFeel(laf);
 			SwingUtilities.updateComponentTreeUI(frame);
 			logInfo("LookAndFeel set to: " + laf.getName());
+
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
@@ -648,7 +616,6 @@ public class Console {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
