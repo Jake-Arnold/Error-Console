@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -76,50 +77,6 @@ public class Console {
 	}
 
 	/**
-	 * This constructor calls the method to initialize the Swing components and
-	 * sets the LookAndFeel given as the argument laf.
-	 * 
-	 * @param laf
-	 *            The desired LookAndFeel class.
-	 */
-	public Console(LookAndFeel laf) {
-		initialize();
-
-		try {
-			UIManager.setLookAndFeel(laf);
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-
-		setVisible(true);
-	}
-
-	/**
-	 * This constructor calls the method to initialize the Swing components and
-	 * sets the LookAndFeel given as the argument laf.
-	 * 
-	 * @param laf
-	 *            The desired LookAndFeel name as a String.
-	 */
-	public Console(String laf) {
-		initialize();
-
-		try {
-			UIManager.setLookAndFeel(laf);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-
-		setVisible(true);
-	}
-
-	/**
 	 * Initializes the JFrame and its content. Makes use of double {{
 	 * initialization.
 	 */
@@ -134,6 +91,7 @@ public class Console {
 					{
 						add(save);
 						addSeparator();
+						add(close);
 						add(terminate);
 					}
 				});
@@ -141,7 +99,7 @@ public class Console {
 				add(new JMenu("Console") {
 					{
 						add(clear);
-						add(close);
+						
 					}
 				});
 
@@ -397,6 +355,7 @@ public class Console {
 	 */
 	public boolean log(String message) {
 		StyleConstants.setForeground(keyWord, normalColor);
+
 		currentTime = new Date(System.currentTimeMillis());
 		try {
 			doc.insertString(doc.getLength(),
@@ -422,6 +381,7 @@ public class Console {
 	 */
 	public boolean logError(String message) {
 		StyleConstants.setForeground(keyWord, errorColor);
+
 		currentTime = new Date(System.currentTimeMillis());
 
 		try {
@@ -518,6 +478,53 @@ public class Console {
 	 */
 	public void setErrorTextColor(Color color) {
 		errorColor = color;
+	}
+
+	/**
+	 * Sets the LookAndFeel of the frame.
+	 * 
+	 * @param laf
+	 *            - The LookAndFeel class to set as.
+	 */
+	public void setLookAndFeel(LookAndFeel laf) {
+
+		try {
+			UIManager.setLookAndFeel(laf);
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Sets the LookAndFeel of the frame.
+	 * 
+	 * @param laf
+	 *            - The LookAndFeel as a String to set as.
+	 */
+
+	public void setLookAndFeel(String laf) {
+		try {
+			UIManager.setLookAndFeel(laf);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Sets the font to the specified Font.
+	 * 
+	 * @param font
+	 *            the Font desired to be set.
+	 */
+	public void setFont(Font font) {
+		outputText.setFont(font);
 	}
 
 }
