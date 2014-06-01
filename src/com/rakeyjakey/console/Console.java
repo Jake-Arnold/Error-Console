@@ -222,7 +222,7 @@ public class Console {
 							}
 						}, BorderLayout.SOUTH);
 						setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-						setSize(305, 160);
+						pack();
 						setResizable(false);
 						setLocationRelativeTo(Console.this.frame);
 						setVisible(true);
@@ -525,6 +525,8 @@ public class Console {
 	 */
 	public void setFont(Font font) {
 		outputText.setFont(font);
+		
+		log("Font set to: " + font.getName());
 	}
 
 }
