@@ -30,6 +30,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.LookAndFeel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
@@ -37,6 +38,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import com.alee.laf.WebLookAndFeel;
 
 /**
  * This class creates a JFrame in Java Swing with the capabilities to log
@@ -65,7 +68,8 @@ public class Console {
 	private final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat(
 			"HH:mm");
 	private Date currentTime;
-	private Color errorColor = Color.RED, normalColor = Color.BLACK;
+	private Color errorColor = Color.RED, normalColor = Color.BLACK,
+			warningColor = Color.ORANGE, infoColor = Color.GREEN;
 
 	/**
 	 * This constructor simply calls the method to initialize the Swing
@@ -99,7 +103,7 @@ public class Console {
 				add(new JMenu("Console") {
 					{
 						add(clear);
-						
+
 					}
 				});
 
@@ -372,6 +376,36 @@ public class Console {
 	}
 
 	/**
+	 * Logs the given message in the console window as an info essage..
+	 * 
+	 * @param message
+	 *            the info message to be logged.
+	 * 
+	 * @return true if info message successfully logged.
+	 */
+	public boolean logInfo(String message) {
+		StyleConstants.setForeground(keyWord, infoColor);
+
+		currentTime = new Date(System.currentTimeMillis());
+
+		try {
+			doc.insertString(doc.getLength(),
+					"  [" + simpleDateFormatter.format(currentTime)
+							+ "] [INFO]: " + message + "\n", keyWord);
+
+			scrollBar.setValue(scrollBar.getMaximum());
+
+			System.out.println("  [" + simpleDateFormatter.format(currentTime)
+					+ "] [INFO]: " + message);
+			return true;
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+	}
+
+	/**
 	 * Logs the given message in the console window in red.
 	 * 
 	 * @param message
@@ -403,6 +437,76 @@ public class Console {
 	}
 
 	/**
+	 * Logs the given message in the console window as a warning.
+	 * 
+	 * @param message
+	 *            the warning message to be logged.
+	 * 
+	 * @return true if warning message successfully logged.
+	 */
+	public boolean logWarning(String message) {
+
+		StyleConstants.setForeground(keyWord, warningColor);
+
+		currentTime = new Date(System.currentTimeMillis());
+
+		try {
+			doc.insertString(doc.getLength(),
+					"  [" + simpleDateFormatter.format(currentTime)
+							+ "] [WARNING]: " + message + "\n", keyWord);
+
+			scrollBar.setValue(scrollBar.getMaximum());
+
+			System.out.println("  [" + simpleDateFormatter.format(currentTime)
+					+ "] [WARNING]: " + message);
+			return true;
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+
+	}
+
+	/**
+	 * Logs the given message in the console window in red.
+	 * 
+	 * @param message
+	 *            the error message to be logged.
+	 * 
+	 * @return true if error message successfully logged.
+	 * 
+	 */
+	public boolean logError(String message, int severity) {
+
+		if (severity == 0)
+			StyleConstants.setForeground(keyWord, Color.YELLOW);
+		if (severity == 1)
+			StyleConstants.setForeground(keyWord, Color.ORANGE);
+		if (severity > 1)
+			StyleConstants.setForeground(keyWord, Color.RED);
+
+		currentTime = new Date(System.currentTimeMillis());
+
+		try {
+			doc.insertString(doc.getLength(),
+					"  [" + simpleDateFormatter.format(currentTime)
+							+ "] [ERROR]: " + message + "\n", keyWord);
+
+			scrollBar.setValue(scrollBar.getMaximum());
+
+			System.out.println("  [" + simpleDateFormatter.format(currentTime)
+					+ "] [ERROR]: " + message);
+			return true;
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+
+	}
+
+	/**
 	 * Sets the visibilty of the console to either true or false.
 	 * 
 	 * @param visible
@@ -410,6 +514,8 @@ public class Console {
 	 */
 	public void setVisible(boolean visible) {
 		frame.setVisible(visible);
+
+		logInfo("Visibility set to: " + visible);
 	}
 
 	/**
@@ -429,6 +535,7 @@ public class Console {
 	 */
 	public void setAlwaysOnTop(boolean alwaysOnTop) {
 		frame.setAlwaysOnTop(alwaysOnTop);
+		logInfo("Always on top set to: " + alwaysOnTop);
 	}
 
 	/**
@@ -448,6 +555,7 @@ public class Console {
 	 */
 	public void setTitle(String title) {
 		frame.setTitle(title);
+		logInfo("Frame title set to: " + title);
 	}
 
 	/**
@@ -481,6 +589,28 @@ public class Console {
 	}
 
 	/**
+	 * Sets the warning text color to the color specified.
+	 * 
+	 * @param color
+	 *            the color to change to.
+	 * 
+	 */
+	public void setWarningTextColor(Color color) {
+		warningColor = color;
+	}
+
+	/**
+	 * Sets the info text color to the color specified.
+	 * 
+	 * @param color
+	 *            the color to change to.
+	 * 
+	 */
+	public void setInfoTextColor(Color color) {
+		infoColor = color;
+	}
+
+	/**
 	 * Sets the LookAndFeel of the frame.
 	 * 
 	 * @param laf
@@ -490,6 +620,8 @@ public class Console {
 
 		try {
 			UIManager.setLookAndFeel(laf);
+			SwingUtilities.updateComponentTreeUI(frame);
+			logInfo("LookAndFeel set to: " + laf.getName());
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
@@ -505,6 +637,8 @@ public class Console {
 	public void setLookAndFeel(String laf) {
 		try {
 			UIManager.setLookAndFeel(laf);
+			SwingUtilities.updateComponentTreeUI(frame);
+			logInfo("LookAndFeel set to: " + laf);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -525,8 +659,16 @@ public class Console {
 	 */
 	public void setFont(Font font) {
 		outputText.setFont(font);
-		
-		log("Font set to: " + font.getName());
+		logInfo("Font set to: " + font.getName());
+	}
+
+	/**
+	 * Gets the font the console is using.
+	 * 
+	 * @return the font being used.
+	 */
+	public Font getFont() {
+		return outputText.getFont();
 	}
 
 }
