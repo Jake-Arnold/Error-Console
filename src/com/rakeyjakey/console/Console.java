@@ -39,7 +39,6 @@ public class Console implements ActionListener {
     private Color errorColor = Color.RED, normalColor = Color.BLACK,
             warningColor = Color.ORANGE, infoColor = Color.GREEN;
 
-
     /**
      * This constructor simply calls the method to set the default LookAndFeel, initialize the Swing
      * components and show the frame.
@@ -47,6 +46,7 @@ public class Console implements ActionListener {
     public Console() {
 
         if (System.getProperty("os.name").startsWith("Windows")) {
+
             try {
                 UIManager.setLookAndFeel("com.alee.laf.WebLookAndFeel");
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
@@ -416,7 +416,6 @@ public class Console implements ActionListener {
      *
      * @return the title of the console.
      */
-
     public String getTitle() {
         return frame.getTitle();
     }
